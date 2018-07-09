@@ -1,0 +1,21 @@
+################################################################
+#
+# Python requirements for this project.
+# https://github.com/jdubkim/dlcampjeju2018
+#
+#
+# Edit this file if you're going to install tensorflow gpu.
+#
+################################################################
+# Basic packages
+numpy
+jupyter
+matplotlib
+
+# Tensorflow
+tensorflow
+# tensorflow-gpu
+
+# OpenAI Gym
+gym
+

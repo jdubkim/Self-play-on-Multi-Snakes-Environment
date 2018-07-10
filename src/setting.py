@@ -9,7 +9,7 @@ Environment Settings
 def set_env():
     register(
         id='SnakeEnv-v0',
-        entry_point='gym.envs.gym_snake:SnakeEnv',
+        entry_point='gym.envs.gym_snake:SingleSnake',
     )
 
     add_group(

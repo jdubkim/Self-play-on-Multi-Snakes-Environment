@@ -10,10 +10,10 @@ class SnakeColor:
 class RGBifier:
     def __init__(self, size, zoom_factor=1, players_colors = {}):
 
-        self.p_colors = {0: SnakeColor((191, 242, 191), (0, 204, 0)),    # Green
-                         1: SnakeColor((188, 128, 230), (119, 0, 204)),  # Violet
-                         2: SnakeColor((128, 154, 230), (0, 51, 204)),   # Blue
-                         3: SnakeColor((230, 128, 188), (204, 0, 119))}  # Magenta
+        self.p_colors = {1: SnakeColor((191, 242, 191), (0, 204, 0)),    # Green
+                         2: SnakeColor((188, 128, 230), (119, 0, 204)),  # Violet
+                         3: SnakeColor((128, 154, 230), (0, 51, 204)),   # Blue
+                         4: SnakeColor((230, 128, 188), (204, 0, 119))}  # Magenta
         self.zoom_factor = zoom_factor
         self.size = size
         self.height = size[0]

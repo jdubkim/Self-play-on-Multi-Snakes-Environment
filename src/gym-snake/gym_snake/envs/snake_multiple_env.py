@@ -6,23 +6,25 @@ import random
 from gym_snake.core.render import Renderer, RGBifier
 from gym_snake.core.world import World
 
+
 class MultipleSnakes(gym.Env):
     COLOR_CHANNELS = 3
     metadata = {
-        'render.modes': ['human','rgb_array'],
+        'render.modes': ['human', 'rgb_array'],
         'observation.types': ['raw', 'rgb']
     }
 
-    def __init__(self, size=(16,16), step_limit = 1000, dynamic_step_limit = 1000, obs_type='raw',
-                 obs_zoom = 1, n_food = 1, die_on_eat = False, render_zoom = 20):
+    def __init__(self, size=(16, 16), step_limit=1000, dynamic_step_limit=1000, obs_type='raw',
+                 obs_zoom=1, n_food =1, n_snakes = 4, render_zoom=20):
         self.SIZE = size
         self.STEP_LIMIT = step_limit
         self.DYNAMIC_STEP_LIMIT = dynamic_step_limit
         self.hunger = 0
-        self.DIE_ON_EAT = die_on_eat
-
+        self.current_step = 0
+        self.alive = True
+        self.n_snakes = n_snakes
         # Create the world
-        self.world = World(size, n_snakes=1, n_food=n_food)
+        self.world = World(size, n_snakes=self.n_snakes, n_food=n_food)
 
         self.obs_type = obs_type
         if self.obs_type == 'raw':
@@ -34,42 +36,37 @@ class MultipleSnakes(gym.Env):
             raise(Exception('Unrecognized observation mode.'))
 
         # Set action space 4 directions
-        self.action_space = spaces.Discrete(len(self.world.ACTIONS))
+        # TODO: Add one more action space for 'attack'
+        self.action_space = spaces.Discrete(len(self.world.DIRECTIONS))
         # Set renderer
         self.RENDER_ZOOM = render_zoom
 
     def _reset(self):
         self.current_step = 0
         self.alive = True
-        self.hunger = 0
         # Create world
-        self.world = World(self.SIZE, n_snakes=1)
+        self.world = World(self.SIZE, n_snakes=self.n_snakes)
         return self._get_state()
 
-    def _step(self, action):
+    def _step(self, actions):
 
         if not self.alive:
             raise Exception('Need to reset env now.')
 
+        rewards, dones = self.world.move_snake(actions)
+        self.alive = not all(dones)
+
         self.current_step += 1
-        if (self.current_step >= self.STEP_LIMIT) or (self.hunger > self.DYNAMIC_STEP_LIMIT):
+        if (self.current_step >= self.STEP_LIMIT): # or (self.hunger > self.DYNAMIC_STEP_LIMIT)
             self.alive = False
             # return observation, alive,
-            return self.world.get_observation(), 0, True, {}
+            return self.world.get_observation(), rewards, dones, {}
 
-        rewards, dones = self.world.move_snake([action])
-        # Update
-        self.hunger += 1
-        if rewards[0] > 0:
-            self.hunger = 0
+        for i, (reward, done) in enumerate(zip(rewards, dones)):
+            if reward > 0:
+                self.world.snakes[i].hunger = 0
 
-        if rewards[0] > 0 and self.DIE_ON_EAT:
-            dones[0] = True
-
-        if dones[0]:
-            self.alive = False
-
-        return self._get_state(), rewards[0], dones[0], {}
+        return self._get_state(), rewards, dones, {}
 
     def _get_state(self):
         state = self.world.get_observation()

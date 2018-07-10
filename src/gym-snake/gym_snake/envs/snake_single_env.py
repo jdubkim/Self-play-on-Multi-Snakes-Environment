@@ -14,12 +14,11 @@ class SingleSnake(gym.Env):
     }
 
     def __init__(self, size=(16,16), step_limit = 1000, dynamic_step_limit = 1000, obs_type='raw',
-                 obs_zoom = 1, n_food = 1, die_on_eat = False, render_zoom = 20):
+                 obs_zoom = 1, n_food = 1, render_zoom = 20):
         self.SIZE = size
         self.STEP_LIMIT = step_limit
         self.DYNAMIC_STEP_LIMIT = dynamic_step_limit
         self.hunger = 0
-        self.DIE_ON_EAT = die_on_eat
         self.current_step = 0
         # Create the world
         self.world = World(size, n_snakes=1, n_food=n_food)
@@ -62,9 +61,6 @@ class SingleSnake(gym.Env):
         self.hunger += 1
         if rewards[0] > 0:
             self.hunger = 0
-
-        if rewards[0] > 0 and self.DIE_ON_EAT:
-            dones[0] = True
 
         if dones[0]:
             self.alive = False

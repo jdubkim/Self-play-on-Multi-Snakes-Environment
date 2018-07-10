@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from enum import Enum
+from copy import copy
 """
     Set snake as an agent in this environment. 
     Initially starts with length = 3, and direction towards North
@@ -31,7 +32,6 @@ class Snake:
         1: RIGHT (E)
         2: DOWN (S)
         3: LEFT (W)
-
         Actions:
         0: UP
         1: RIGHT
@@ -45,7 +45,11 @@ class Snake:
     def __init__(self, snake_id, start_position, direction=Dir.N, start_length=3):
         self.snake_id = snake_id
         self.direction = direction
+        self.length = start_length
         self.start_position = start_position
+
+        self.hunger = 0
+        self.alive = True
         self.snake_body = [start_position]  # save coordinates of snake body. array of tuples
         current_position = np.array(start_position)
 
@@ -57,27 +61,35 @@ class Snake:
         # Only move to left or right
         if (action != self.direction) and (action != (self.direction + 2) % len(self.DIRECTIONS)):
             self.direction = action
-
+        self.hunger += 1
         # Remove tail
         tail = self.snake_body[-1]
         self.snake_body = self.snake_body[:-1]
-
         new_head = tuple(np.array(self.snake_body[0]) + self.DIRECTIONS[self.direction])
         self.snake_body.insert(0, new_head)
+
         return new_head, tail
+
+    def free(self):
+        for block in self.snake_body:
+            block = 0
+        self.snake_body = []
 
 class World:
     REWARD = {'dead': -1, 'move': 0, 'eat': 1}
-    def __init__(self, size, n_snakes=1, n_food=1):
+
+    def __init__(self, size, n_snakes, n_food=1):
         self.FOOD = 255
         self.DIRECTIONS = Snake.DIRECTIONS
         self.ACTIONS = Snake.ACTIONS
+
         # Init a numpy matrix with zeros
         self.size = size
         self.world = np.zeros(size)
         self.available_positions = set([(i, j) for i in range(self.size[0]) for j in range(self.size[1])])
-
         self.snakes = []
+        self.cumulative_rewards = [0 for _ in range(n_snakes)]
+
         for _ in range(n_snakes):
             snake = self.register_snake()
             self.available_positions = self.available_positions - set(snake.snake_body)
@@ -85,17 +97,20 @@ class World:
         for _ in range(n_food):
             self.place_food()
 
+    # snake_id starts from 1
     def register_snake(self):
-        SNAKE_SIZE = 3
+        SNAKE_SIZE = 4
         # Make snakes not overlap
         position = (random.randint(SNAKE_SIZE, self.size[0] - SNAKE_SIZE), random.randint(SNAKE_SIZE, self.size[1] - SNAKE_SIZE))
+
         while not position in self.available_positions:
             position = (random.randint(SNAKE_SIZE, self.size[0] - SNAKE_SIZE), random.randint(SNAKE_SIZE, self.size[1] - SNAKE_SIZE))
 
         direction = random.randrange(len(Snake.DIRECTIONS))
         # create snake
-        new_snake = Snake(len(self.snakes), position, direction, SNAKE_SIZE)
+        new_snake = Snake(len(self.snakes) + 1, position, direction, SNAKE_SIZE)
         self.snakes.append(new_snake)
+
         return new_snake
 
     def place_food(self):
@@ -107,6 +122,9 @@ class World:
         obs = self.world.copy()
 
         for snake in self.snakes:
+            if not snake.alive:
+                continue
+
             for block in snake.snake_body:
                 obs[block[0], block[1]] = snake.snake_id * 2
             # Highlight head
@@ -119,38 +137,49 @@ class World:
     def move_snake(self, actions):
         rewards = []
         dones = []
-        for snake, action in zip(self.snakes, actions):
+
+        for i, (snake, action) in enumerate(zip(self.snakes, actions)):
+            if not snake.alive:
+                rewards.append(0)
+                dones.append(True)
+                continue
+
             new_snake_head, old_snake_tail = snake.step(action)
+            other_snakes = copy(self.snakes)
+            other_snakes.remove(snake)
 
             # If snake collides to the wall or if snake collides himself
             if (not (0 <= new_snake_head[0] < self.size[0]) or not (0 <= new_snake_head[1] < self.size[1])) \
                     or new_snake_head in snake.snake_body[1:]:
-                rewards.append(self.REWARD['dead'])
+                rewards.append(self.cumulative_rewards[i] + self.REWARD['dead'])
                 dones.append(True)
+                snake.alive = False
+                snake.free()
                 # remove snake from player
-                self.snakes.remove(snake)
+                # self.snakes.remove(snake)
                 # add to available positions
                 self.available_positions = self.available_positions | set(snake.snake_body)
-                self.get_observation()
 
             # If snake collides with other snakes
-            elif new_snake_head not in self.available_positions:
+            elif any(new_snake_head in s.snake_body for s in other_snakes):
                 rewards.append(self.REWARD['dead'])
                 dones.append(True)
+                snake.alive = False
+                snake.free()
                 # TODO: Adversarial Environment: If they die, make their bodies into food
                 # for body in snake.snake_body:
                 #     self.world[body[0], body[1]] = self.FOOD
                 # remove snake from player
-                self.snakes.remove(snake)
+                # self.snakes.remove(snake)
                 # add to available positions
                 self.available_positions = self.available_positions | set(snake.snake_body)
-                self.get_observation()
-
+            # If snake eats food
             elif self.world[new_snake_head[0], new_snake_head[1]] == self.FOOD:
                 # Remove food
                 self.world[new_snake_head[0], new_snake_head[1]] = 0
                 # Add tail
                 snake.snake_body.append(old_snake_tail)
+                snake.length += 1
                 # Place new food
                 self.place_food()
                 rewards.append(self.REWARD['eat'])
@@ -158,7 +187,5 @@ class World:
             else:
                 rewards.append(self.REWARD['move'])
                 dones.append(False)
-
         return rewards, dones
-
             # TODO: If snake collides with other snakes but action is 'cutting' (5)

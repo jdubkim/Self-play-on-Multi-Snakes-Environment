@@ -1,3 +1,3 @@
-from gym_snake.envs.snake_env import SnakeEnv
-from gym_snake.envs.snake_extrahard_env import SnakeExtraHardEnv
+from gym_snake.envs.snake_single_env import SingleSnake
+from gym_snake.envs.snake_multiple_env import MultipleSnakes
 

@@ -15,7 +15,7 @@ class MultipleSnakes(gym.Env):
     }
 
     def __init__(self, size=(16, 16), step_limit=1000, dynamic_step_limit=1000, obs_type='raw',
-                 obs_zoom=1, n_food =1, n_snakes = 4, render_zoom=20):
+                 obs_zoom=1, n_food=1, n_snakes=4, render_zoom=20):
         self.SIZE = size
         self.STEP_LIMIT = step_limit
         self.DYNAMIC_STEP_LIMIT = dynamic_step_limit
@@ -57,7 +57,7 @@ class MultipleSnakes(gym.Env):
         self.alive = not all(dones)
 
         self.current_step += 1
-        if (self.current_step >= self.STEP_LIMIT): # or (self.hunger > self.DYNAMIC_STEP_LIMIT)
+        if (self.current_step >= self.STEP_LIMIT):  # or (self.hunger > self.DYNAMIC_STEP_LIMIT)
             self.alive = False
             # return observation, alive,
             return self.world.get_observation(), rewards, dones, {}

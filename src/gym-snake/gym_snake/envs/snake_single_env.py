@@ -2,6 +2,7 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 import random
+import numpy as np
 
 from gym_snake.core.render import Renderer, RGBifier
 from gym_snake.core.world import World
@@ -13,15 +14,16 @@ class SingleSnake(gym.Env):
         'observation.types': ['raw', 'rgb']
     }
 
-    def __init__(self, size=(16,16), step_limit = 1000, dynamic_step_limit = 1000, obs_type='raw',
-                 obs_zoom = 1, n_food = 1, render_zoom = 20):
+    def __init__(self, size=(20, 20), step_limit = 1000, dynamic_step_limit = 1000, obs_type='rgb',
+                 obs_zoom=1, n_food=4, render_zoom = 20):
         self.SIZE = size
         self.STEP_LIMIT = step_limit
         self.DYNAMIC_STEP_LIMIT = dynamic_step_limit
         self.hunger = 0
         self.current_step = 0
+        self.n_food = n_food
         # Create the world
-        self.world = World(size, n_snakes=1, n_food=n_food)
+        self.world = World(size, n_snakes=1, n_food=self.n_food)
 
         self.obs_type = obs_type
         if self.obs_type == 'raw':
@@ -42,7 +44,7 @@ class SingleSnake(gym.Env):
         self.alive = True
         self.hunger = 0
         # Create world
-        self.world = World(self.SIZE, n_snakes=1)
+        self.world = World(self.SIZE, n_snakes=1, n_food = self.n_food)
         return self._get_state()
 
     def _step(self, action):
@@ -54,9 +56,9 @@ class SingleSnake(gym.Env):
         if (self.current_step >= self.STEP_LIMIT) or (self.hunger > self.DYNAMIC_STEP_LIMIT):
             self.alive = False
             # return observation, alive,
-            return self.world.get_observation(), 0, True, {}
+            return self.world.get_observation(), 0, True, {}  # use {} to pass information
 
-        rewards, dones = self.world.move_snake([action])
+        rewards, dones = self.world.move_snake(np.array(action))
         # Update
         self.hunger += 1
         if rewards[0] > 0:

@@ -2,6 +2,7 @@ import numpy as np
 import random
 from enum import Enum
 from copy import copy
+from operator import add
 """
     Set snake as an agent in this environment. 
     Initially starts with length = 3, and direction towards North
@@ -50,6 +51,7 @@ class Snake:
 
         self.hunger = 0
         self.alive = True
+        self.already_dead = False
         self.snake_body = [start_position]  # save coordinates of snake body. array of tuples
         current_position = np.array(start_position)
 
@@ -58,6 +60,12 @@ class Snake:
             self.snake_body.append(tuple(current_position))
 
     def step(self, action):
+
+        if not self.alive:
+            return
+
+        action = np.argmax(action)
+
         # Only move to left or right
         if (action != self.direction) and (action != (self.direction + 2) % len(self.DIRECTIONS)):
             self.direction = action
@@ -71,14 +79,23 @@ class Snake:
         return new_head, tail
 
     def free(self):
-        for block in self.snake_body:
-            block = 0
+        if self.alive:
+            return
+
+        self.hunger = 0
+        self.snake_body = []
+
+    def body_to_fruit(self, world):
+        FOOD = 255
+
+        for body in self.snake_body[1:]:
+            world[body[0], body[1]] = FOOD
         self.snake_body = []
 
 class World:
-    REWARD = {'dead': -1, 'move': 0, 'eat': 1}
+    REWARD = {'dead': -5, 'move': 0, 'eat': 1}
 
-    def __init__(self, size, n_snakes, n_food=1):
+    def __init__(self, size, n_snakes, n_food=1, is_competitive=False):
         self.FOOD = 255
         self.DIRECTIONS = Snake.DIRECTIONS
         self.ACTIONS = Snake.ACTIONS
@@ -86,6 +103,7 @@ class World:
         # Init a numpy matrix with zeros
         self.size = size
         self.world = np.zeros(size)
+        self.is_competitive = is_competitive
         self.available_positions = set([(i, j) for i in range(self.size[0]) for j in range(self.size[1])])
         self.snakes = []
         self.cumulative_rewards = [0 for _ in range(n_snakes)]
@@ -138,7 +156,7 @@ class World:
         rewards = []
         dones = []
 
-        for i, (snake, action) in enumerate(zip(self.snakes, actions)):
+        for i, (snake, action) in enumerate(zip(self.snakes, np.nditer(actions))):
             if not snake.alive:
                 rewards.append(0)
                 dones.append(True)
@@ -154,7 +172,10 @@ class World:
                 rewards.append(self.cumulative_rewards[i] + self.REWARD['dead'])
                 dones.append(True)
                 snake.alive = False
-                snake.free()
+                if self.is_competitive:
+                    snake.body_to_fruit(self.world)
+                else:
+                    snake.free()
                 # remove snake from player
                 # self.snakes.remove(snake)
                 # add to available positions
@@ -162,10 +183,13 @@ class World:
 
             # If snake collides with other snakes
             elif any(new_snake_head in s.snake_body for s in other_snakes):
-                rewards.append(self.REWARD['dead'])
+                rewards.append(self.cumulative_rewards[i] + self.REWARD['dead'])
                 dones.append(True)
                 snake.alive = False
-                snake.free()
+                if self.is_competitive:
+                    snake.body_to_fruit(self.world)
+                else:
+                    snake.free()
                 # TODO: Adversarial Environment: If they die, make their bodies into food
                 # for body in snake.snake_body:
                 #     self.world[body[0], body[1]] = self.FOOD
@@ -180,12 +204,16 @@ class World:
                 # Add tail
                 snake.snake_body.append(old_snake_tail)
                 snake.length += 1
+                snake.hunger = 0
                 # Place new food
                 self.place_food()
-                rewards.append(self.REWARD['eat'])
+                rewards.append(self.cumulative_rewards[i] + self.REWARD['eat'])
+                self.cumulative_rewards = [sum(x) for x in zip(self.cumulative_rewards, rewards)]
                 dones.append(False)
             else:
-                rewards.append(self.REWARD['move'])
+                snake.hunger += 1
+                rewards.append(self.cumulative_rewards[i] + self.REWARD['move'])
                 dones.append(False)
+
         return rewards, dones
-            # TODO: If snake collides with other snakes but action is 'cutting' (5)
+        #  TODO: If snake collides with other snakes but action is 'cutting' (5)

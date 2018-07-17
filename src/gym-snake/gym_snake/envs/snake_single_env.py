@@ -14,8 +14,8 @@ class SingleSnake(gym.Env):
         'observation.types': ['raw', 'rgb']
     }
 
-    def __init__(self, size=(20, 20), step_limit = 1000, dynamic_step_limit = 1000, obs_type='rgb',
-                 obs_zoom=1, n_food=4, render_zoom = 20):
+    def __init__(self, size=(20, 20), step_limit=1000, dynamic_step_limit = 1000, obs_type='rgb',
+                 obs_zoom=1, n_food=4, render_zoom=20):
         self.SIZE = size
         self.STEP_LIMIT = step_limit
         self.DYNAMIC_STEP_LIMIT = dynamic_step_limit
@@ -69,6 +69,9 @@ class SingleSnake(gym.Env):
 
         return self._get_state(), rewards[0], dones[0], {}
 
+    def _seed(self, seed):
+        return random.seed(seed)
+
     def _get_state(self):
         state = self.world.get_observation()
         if self.obs_type == 'rgb':
@@ -76,7 +79,7 @@ class SingleSnake(gym.Env):
         else:
             return state
 
-    def _render(self, mode='human', close=False):
+    def _render(self, mode='rgb_array', close=False):
         if not close:
             if not hasattr(self, 'renderer'):
                 self.renderer = Renderer(self.SIZE, zoom_factor=self.RENDER_ZOOM, players_colors={})

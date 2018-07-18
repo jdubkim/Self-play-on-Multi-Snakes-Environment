@@ -19,9 +19,9 @@ class CnnPolicy(object):
         ob = U.get_placeholder(name="ob", dtype=tf.float32, shape=[sequence_length] + list(ob_space.shape))
 
         x = ob / 255.0
-        if kind == 'small': # from A3C paper
-            x = tf.nn.relu(U.conv2d(x, 16, "l1", [8, 8], [4, 4], pad="VALID"))
-            x = tf.nn.relu(U.conv2d(x, 32, "l2", [4, 4], [2, 2], pad="VALID"))
+        if kind == 'small' or kind == 'large': # from A3C paper
+            x = tf.nn.relu(U.conv2d(x, 16, "l1", [4, 4], [2, 2], pad="VALID"))
+            x = tf.nn.relu(U.conv2d(x, 32, "l2", [4, 4], [1, 1], pad="VALID"))
             x = U.flattenallbut0(x)
             x = tf.nn.relu(tf.layers.dense(x, 256, name='lin', kernel_initializer=U.normc_initializer(1.0)))
         elif kind == 'large': # Nature DQN

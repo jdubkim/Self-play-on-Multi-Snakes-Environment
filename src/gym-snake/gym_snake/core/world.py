@@ -8,24 +8,6 @@ from operator import add
     Initially starts with length = 3, and direction towards North
 """
 
-class Dir(Enum):
-    W = 0
-    E = 1
-    N = 2
-    S = 3
-
-    def describe(self):
-        return self.name, self.value
-
-    def __str__(self):
-        return 'direction is {0}'.format(self.name)
-
-    def rotate_right(self):
-        return (self.value + 1) % len(Dir)
-
-    def rotate_left(self):
-        return (len(Dir) + self.value - 1) % len (Dir)
-
 class Snake:
     """
         Directions:
@@ -40,10 +22,11 @@ class Snake:
         3: LEFT
         4: ATTACK -> to be implemented
     """
+    # Directions: [0] up [1] right [2] down [3] left
     DIRECTIONS = [np.array([-1, 0]), np.array([0, 1]), np.array([1, 0]), np.array([0, -1])]
     ACTIONS = [DIRECTIONS, 'attack']
-
-    def __init__(self, snake_id, start_position, direction=Dir.N, start_length=3):
+    # j <- l down h up k right
+    def __init__(self, snake_id, start_position, direction=DIRECTIONS[0], start_length=3):
         self.snake_id = snake_id
         self.direction = direction
         self.length = start_length
@@ -59,11 +42,16 @@ class Snake:
             current_position = current_position - self.DIRECTIONS[self.direction]
             self.snake_body.append(tuple(current_position))
 
+    """
+        action is an array of length(action_space). 
+        Will get a probability of each actions. 
+    """
     def step(self, action):
 
         if not self.alive:
             return
 
+        # Take the action with highest probability
         action = np.argmax(action)
 
         # Only move to left or right
@@ -92,8 +80,9 @@ class Snake:
             world[body[0], body[1]] = FOOD
         self.snake_body = []
 
+
 class World:
-    REWARD = {'dead': -5, 'move': 0, 'eat': 1}
+    REWARD = {'dead': -5, 'move': 0, 'eat': 2}
 
     def __init__(self, size, n_snakes, n_food=1, is_competitive=False):
         self.FOOD = 255
@@ -155,7 +144,6 @@ class World:
     def move_snake(self, actions):
         rewards = []
         dones = []
-
         for i, (snake, action) in enumerate(zip(self.snakes, np.nditer(actions))):
             if not snake.alive:
                 rewards.append(0)
@@ -208,7 +196,7 @@ class World:
                 # Place new food
                 self.place_food()
                 rewards.append(self.cumulative_rewards[i] + self.REWARD['eat'])
-                self.cumulative_rewards = [sum(x) for x in zip(self.cumulative_rewards, rewards)]
+                self.cumulative_rewards = rewards
                 dones.append(False)
             else:
                 snake.hunger += 1

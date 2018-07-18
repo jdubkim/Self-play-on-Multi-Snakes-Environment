@@ -15,7 +15,7 @@ class SingleSnake(gym.Env):
     }
 
     def __init__(self, size=(20, 20), step_limit=1000, dynamic_step_limit = 1000, obs_type='rgb',
-                 obs_zoom=1, n_food=4, render_zoom=20):
+                 obs_zoom=1, n_food=4, render_zoom=5):
         self.SIZE = size
         self.STEP_LIMIT = step_limit
         self.DYNAMIC_STEP_LIMIT = dynamic_step_limit
@@ -39,16 +39,15 @@ class SingleSnake(gym.Env):
         # Set renderer
         self.RENDER_ZOOM = render_zoom
 
-    def _reset(self):
+    def reset(self):
         self.current_step = 0
         self.alive = True
         self.hunger = 0
         # Create world
         self.world = World(self.SIZE, n_snakes=1, n_food = self.n_food)
-        return self._get_state()
+        return self.get_state()
 
-    def _step(self, action):
-
+    def step(self, action):
         if not self.alive:
             raise Exception('Need to reset env now.')
 
@@ -58,7 +57,7 @@ class SingleSnake(gym.Env):
             # return observation, alive,
             return self.world.get_observation(), 0, True, {}  # use {} to pass information
 
-        rewards, dones = self.world.move_snake(np.array(action))
+        rewards, dones = self.world.move_snake(np.array([action]))
         # Update
         self.hunger += 1
         if rewards[0] > 0:
@@ -67,19 +66,19 @@ class SingleSnake(gym.Env):
         if dones[0]:
             self.alive = False
 
-        return self._get_state(), rewards[0], dones[0], {}
+        return self.get_state(), rewards[0], dones[0], {}
 
-    def _seed(self, seed):
+    def seed(self, seed):
         return random.seed(seed)
 
-    def _get_state(self):
+    def get_state(self):
         state = self.world.get_observation()
         if self.obs_type == 'rgb':
             return self.RGBify.get_image(state)
         else:
             return state
 
-    def _render(self, mode='rgb_array', close=False):
+    def render(self, mode='rgb_array', close=False):
         if not close:
             if not hasattr(self, 'renderer'):
                 self.renderer = Renderer(self.SIZE, zoom_factor=self.RENDER_ZOOM, players_colors={})

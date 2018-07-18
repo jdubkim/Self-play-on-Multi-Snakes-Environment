@@ -8,6 +8,7 @@ from gym_snake.core.world import World
 
 
 class CompetitiveSnakes(gym.Env):
+
     COLOR_CHANNELS = 3
     metadata = {
         'render.modes': ['human', 'rgb_array'],

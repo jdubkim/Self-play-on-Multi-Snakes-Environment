@@ -30,7 +30,7 @@ def main():
     parser.add_argument('--dueling', type=int, default=1)
     parser.add_argument('--num-timesteps', type=int, default=int(10e6))
     parser.add_argument('--checkpoint-freq', type=int, default=10000)
-    parser.add_argument('--checkpoint-path', type=str, default=None)
+    parser.add_argument('--checkpoint-path', type=str, default='./single-dqn/')
 
     args = parser.parse_args()
 
@@ -50,7 +50,7 @@ def main():
                           lr=1e-4,
                           max_timesteps=2000000,
                           buffer_size=50000,
-                          train_freq=100,
+                          train_freq=10,
                           exploration_fraction=0.1,
                           exploration_final_eps=0.02,
                           gamma=0.99,

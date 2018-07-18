@@ -16,6 +16,7 @@ from baselines import deepq
 from baselines.deepq.replay_buffer import ReplayBuffer
 from baselines.deepq.utils import ObservationInput
 from baselines.common.schedules import LinearSchedule
+from baselines.common.atari_wrappers import FrameStack
 
 import gym_snake
 
@@ -37,6 +38,7 @@ def main():
     # make_session first argument : num of cpus
     with U.make_session(8):
         env = gym.make(args.env)
+        env = FrameStack(env, 4)
         print("observation space is ", env.observation_space)
         print("action space is ", env.action_space)
         model = deepq.models.cnn_to_mlp(

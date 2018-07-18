@@ -73,10 +73,8 @@ class SingleSnake(gym.Env):
 
     def get_state(self):
         state = self.world.get_observation()
-        if self.obs_type == 'rgb':
-            return self.RGBify.get_image(state)
-        else:
-            return state
+
+        return self.RGBify.get_image(state)
 
     def render(self, mode='rgb_array', close=False):
         if not close:

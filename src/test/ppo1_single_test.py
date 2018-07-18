@@ -16,7 +16,7 @@ def train(env_id, num_timesteps, seed):
     from baselines.ppo1 import pposgd_simple, cnn_policy
     import baselines.common.tf_util as U
     rank = MPI.COMM_WORLD.Get_rank()
-    sess = U.single_threaded_session()
+    sess = U.make_session(num_cpu=4)
     sess.__enter__()
     if rank == 0:
         logger.configure()
@@ -24,6 +24,7 @@ def train(env_id, num_timesteps, seed):
         logger.configure(format_strs=[])
 
     env = gym.make(env_id)
+
     def policy_fn(name, ob_space, ac_space): #pylint: disable=W0613
         return cnn_policy.CnnPolicy(name=name, ob_space=ob_space, ac_space=ac_space)
 

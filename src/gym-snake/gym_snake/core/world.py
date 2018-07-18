@@ -52,11 +52,13 @@ class Snake:
             return
 
         # Take the action with highest probability
-        action = np.argmax(action)
+        # action = np.argmax(action)
 
         # Only move to left or right
         if (action != self.direction) and (action != (self.direction + 2) % len(self.DIRECTIONS)):
             self.direction = action
+        else:
+            action = self.direction
         self.hunger += 1
         # Remove tail
         tail = self.snake_body[-1]
@@ -156,7 +158,7 @@ class World:
 
             # If snake collides to the wall or if snake collides himself
             if (not (0 <= new_snake_head[0] < self.size[0]) or not (0 <= new_snake_head[1] < self.size[1])) \
-                    or new_snake_head in snake.snake_body[1:]:
+                    or new_snake_head in snake.snake_body[1:] or snake.hunger > 40:
                 rewards.append(self.cumulative_rewards[i] + self.REWARD['dead'])
                 dones.append(True)
                 snake.alive = False

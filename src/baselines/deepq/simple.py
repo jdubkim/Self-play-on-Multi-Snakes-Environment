@@ -7,6 +7,7 @@ import cloudpickle
 import numpy as np
 
 import baselines.common.tf_util as U
+import time
 from baselines.common.tf_util import load_state, save_state
 from baselines import logger
 from baselines.common.schedules import LinearSchedule
@@ -223,7 +224,7 @@ def learn(env,
     with tempfile.TemporaryDirectory() as td:
         td = checkpoint_path or td
 
-        model_file = os.path.join(td, "model")
+        model_file = os.path.join(td, "model.ckpt")
         model_saved = False
         if tf.train.latest_checkpoint(td) is not None:
             load_state(model_file)
@@ -231,6 +232,8 @@ def learn(env,
             model_saved = True
 
         for t in range(max_timesteps):
+            #env.render(mode='human')
+            #time.sleep(0.01)
             if callback is not None:
                 if callback(locals(), globals()):
                     break
@@ -278,7 +281,9 @@ def learn(env,
 
             if t > learning_starts and t % target_network_update_freq == 0:
                 # Update target network periodically.
+                print("Update target")
                 update_target()
+                # check whether targetDQN
 
             mean_100ep_reward = round(np.mean(episode_rewards[-101:-1]), 1)
             num_episodes = len(episode_rewards)

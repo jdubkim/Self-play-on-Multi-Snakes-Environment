@@ -55,7 +55,7 @@ class RGBifier:
 
 class Renderer:
 
-    def __init__(self, size, zoom_factor = 1, players_colors = {}):
+    def __init__(self, size, zoom_factor=1, players_colors = {}):
         self.rgb = RGBifier(size, zoom_factor, players_colors)
         self.viewer = None
 

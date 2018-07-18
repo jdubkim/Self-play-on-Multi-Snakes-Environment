@@ -1,3 +1,5 @@
+import argparse
+
 from mpi4py import MPI
 import sys
 import gym
@@ -20,9 +22,8 @@ def train(env_id, num_timesteps, seed):
         logger.configure()
     else:
         logger.configure(format_strs=[])
-    workerseed = seed + 10000 * MPI.COMM_WORLD.Get_rank()
-    set_global_seeds(workerseed)
-    env = gym.make('snake-single-v0')
+
+    env = gym.make(env_id)
     def policy_fn(name, ob_space, ac_space): #pylint: disable=W0613
         return cnn_policy.CnnPolicy(name=name, ob_space=ob_space, ac_space=ac_space)
 
@@ -37,7 +38,12 @@ def train(env_id, num_timesteps, seed):
     env.close()
 
 def main():
-    args = atari_arg_parser().parse_args()
+    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--env', help='environment ID', default='snake-single-v0')
+    parser.add_argument('--num-timesteps', help='number of maximum time steps', default=2000000)
+    parser.add_argument('--seed', help='random seed value', default=111)
+    args = parser.parse_args()
+
     train(args.env, num_timesteps=args.num_timesteps, seed=args.seed)
 
 if __name__ == '__main__':

@@ -158,6 +158,7 @@ def learn(*, policy, env, nsteps, total_timesteps, ent_coef, lr,
 
     nenvs = env.num_envs
     ob_space = env.observation_space
+    print("ob space is ", ob_space)
     ac_space = env.action_space
     nbatch = nenvs * nsteps
     nbatch_train = nbatch // nminibatches

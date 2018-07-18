@@ -111,9 +111,8 @@ class DQN2015:
                     self.env.render()
                     if np.random.rand() < e:
                         action = self.env.action_space.sample()
-                    else:
-                        action = np.argmax(mainDQN.predict(state))
 
+                    print("action is ", action)
                     # Get new state and reward from environment
                     next_state, reward, done, _ = self.env.step(action)
                     variable_summaries(reward)

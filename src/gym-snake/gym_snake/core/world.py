@@ -82,7 +82,7 @@ class Snake:
 
 
 class World:
-    REWARD = {'dead': -5, 'move': 0, 'eat': 2}
+    REWARD = {'dead': -1, 'move': 0, 'eat': 1}
 
     def __init__(self, size, n_snakes, n_food=1, is_competitive=False):
         self.FOOD = 255

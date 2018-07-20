@@ -95,7 +95,9 @@ The functions in this file can are used to create the following functions:
 """
 import tensorflow as tf
 import baselines.common.tf_util as U
+from baselines import logger
 
+tensorboard_writer = logger.TensorBoardOutputFormat('./tensorboard/single-dqn/')
 
 def scope_vars(scope, trainable_only=False):
     """
@@ -181,6 +183,7 @@ def build_act(make_obs_ph, q_func, num_actions, scope="deepq", reuse=None):
         eps = tf.get_variable("eps", (), initializer=tf.constant_initializer(0))
 
         q_values = q_func(observations_ph.get(), num_actions, scope="q_func")
+        logger.record_tabular("q value", q_values)
         deterministic_actions = tf.argmax(q_values, axis=1)
 
         batch_size = tf.shape(observations_ph.get())[0]
@@ -411,7 +414,6 @@ def build_train(make_obs_ph, q_func, num_actions, optimizer, grad_norm_clipping=
         td_error = q_t_selected - tf.stop_gradient(q_t_selected_target)
         errors = U.huber_loss(td_error)
         weighted_error = tf.reduce_mean(importance_weights_ph * errors)
-
         # compute optimization op (potentially with gradient clipping)
         if grad_norm_clipping is not None:
             gradients = optimizer.compute_gradients(weighted_error, var_list=q_func_vars)

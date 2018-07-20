@@ -2,12 +2,12 @@ import gym
 import sys
 import gym_snake
 sys.path.append('../model/')
-import dqn2015
+#import dqn2015
 from time import sleep
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--env', type=str, default='snake-competitive-v0',
+parser.add_argument('--env', type=str, default='snake-single-v0',
   help="""\
   Select environment ID.
 """)
@@ -15,13 +15,14 @@ FLAGS, unparsed = parser.parse_known_args()
 
 env = gym.make(FLAGS.env)
 env.reset()
-qNet = dqn2015.DQN2015(env)
-env.render()
-#env.step([1])
-#env.render()
+env.render(mode='human')
+action = [env.action_space.sample()]
+env.step(action)
+
+print("get_observation: ")
 print(env.world.get_observation())
-#qNet.run()
-#env = gym.wrappers.Monitor(env, 'tmp_video')
+print("get_state: ")
+print(env.get_state())
 
 # for e in range(500):
 #     obs = env.reset()

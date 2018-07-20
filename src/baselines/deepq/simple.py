@@ -171,6 +171,7 @@ def learn(env,
 
     sess = tf.Session()
     sess.__enter__()
+    tensorboard_writer = logger.TensorBoardOutputFormat('./tensorboard/single-dqn/')
 
     # capture the shape outside the closure so that the env object is not serialized
     # by cloudpickle when serializing make_obs_ph
@@ -217,6 +218,7 @@ def learn(env,
     update_target()
 
     episode_rewards = [0.0]
+    num_steps = []
     saved_mean_reward = None
     obs = env.reset()
     reset = True
@@ -232,6 +234,8 @@ def learn(env,
             model_saved = True
 
         for t in range(max_timesteps):
+            env.render(mode='human')
+            #time.sleep(0.01)
             #env.render(mode='human')
             #time.sleep(0.01)
             if callback is not None:
@@ -290,8 +294,10 @@ def learn(env,
             if done and print_freq is not None and len(episode_rewards) % print_freq == 0:
                 logger.record_tabular("steps", t)
                 logger.record_tabular("episodes", num_episodes)
+                #                logger.record_tabular("mean steps", )
                 logger.record_tabular("mean 100 episode reward", mean_100ep_reward)
                 logger.record_tabular("% time spent exploring", int(100 * exploration.value(t)))
+                tensorboard_writer.writekvs(logger.getkvs())
                 logger.dump_tabular()
 
             if (checkpoint_freq is not None and t > learning_starts and

@@ -159,6 +159,8 @@ def learn(env, policy_fn, *,
         else:
             raise NotImplementedError
 
+        env.render(mode='human')
+        time.sleep(0.01)
         logger.log("********** Iteration %i ************"%iters_so_far)
 
         seg = seg_gen.__next__()

@@ -61,7 +61,7 @@ def main():
                           checkpoint_path=args.checkpoint_path,
                           param_noise=True)
         act.save("../models/single-dqn/single_dqn_model_final.pkl")
-        env.close()
+        # env.close()
 
 if __name__ == '__main__':
     main()

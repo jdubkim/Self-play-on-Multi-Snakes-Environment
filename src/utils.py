@@ -25,7 +25,6 @@ class WarpFrame(gym.ObservationWrapper):
         self.observation_space = spaces.Box(low=0, high=255, shape=(self.height, self.width, 6), dtype=np.uint8)
 
     def observation(self, frame):
-        print("width: {0}, height: {1}".format(self.width, self.height))
         if Config.USE_ATARI_SIZE:
             frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
 

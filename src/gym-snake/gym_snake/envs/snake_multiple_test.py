@@ -41,19 +41,19 @@ class SnakeEnv(gym.Env):
         fruits = self.state[1]
 
         for fruit in fruits:
-            ob[fruit[0] + 1][fruit[1] + 1] = [255, 255, 255]
+            ob[fruit[0] + 1][fruit[1] + 1] = [255, 0, 0]
 
         for i in range(len(snakes)):
             if (i == idx):
-                self.draw_snake(ob, snakes[i], [255, 0, 0], [255, 255, 0])
+                self.draw_snake(ob, snakes[i], [0, 204, 0], [191, 242, 191])
             else:
-                self.draw_snake(ob, snakes[i], [0, 0, 255], [0, 255, 255])
+                self.draw_snake(ob, snakes[i], [0, 51, 204], [128, 154, 230])
 
         for i in range(dim + 2):
-            ob[i][0] = [0, 255, 0]
-            ob[i][dim + 1] = [0, 255, 0]
-            ob[0][i] = [0, 255, 0]
-            ob[dim + 1][i] = [0, 255, 0]
+            ob[i][0] = [255, 255, 255]
+            ob[i][dim + 1] = [255, 255, 255]
+            ob[0][i] = [255, 255, 255]
+            ob[dim + 1][i] = [255, 255, 255]
 
         return ob  # 12 * 12 * 3 array
 
@@ -232,7 +232,8 @@ class SnakeEnv(gym.Env):
                 rgb255 = ob[i][j]
                 self.cells[idx].set_color(rgb255[0] / 255, rgb255[1] / 255, rgb255[2] / 255)
 
-        if self.state is None: return None
+        if self.state is None:
+            return None
 
         return self.viewer.render(return_rgb_array = mode=='rgb_array')
 

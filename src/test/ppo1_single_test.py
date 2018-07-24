@@ -1,51 +1,50 @@
-import argparse
-
-from mpi4py import MPI
+import os
 import sys
 import gym
+import argparse
+import sys
 sys.path.append('../')
-import gym_snake
-from baselines.common import set_global_seeds
-from baselines import bench
-import os.path as osp
 from baselines import logger
-from baselines.common.atari_wrappers import make_atari, wrap_deepmind
-from baselines.common.cmd_util import atari_arg_parser
+import gym_snake
 
-def train(env_id, num_timesteps, seed):
-    from baselines.ppo1 import pposgd_simple, cnn_policy
-    import baselines.common.tf_util as U
-    rank = MPI.COMM_WORLD.Get_rank()
-    sess = U.make_session(num_cpu=4)
-    sess.__enter__()
-    if rank == 0:
-        logger.configure()
-    else:
-        logger.configure(format_strs=[])
+import multiprocessing
+import tensorflow as tf
 
-    env = gym.make(env_id)
+import numpy as np
+import ppo_multi_agent
+from policies import CnnPolicy
 
-    def policy_fn(name, ob_space, ac_space): #pylint: disable=W0613
-        return cnn_policy.CnnPolicy(name=name, ob_space=ob_space, ac_space=ac_space)
+import utils
+from config import Config
 
-    pposgd_simple.learn(env, policy_fn,
-        max_timesteps=int(num_timesteps * 1.1),
-        timesteps_per_actorbatch=256,
-        clip_param=0.2, entcoeff=0.01,
-        optim_epochs=4, optim_stepsize=1e-3, optim_batchsize=64,
-        gamma=0.99, lam=0.95,
-        schedule='linear'
-    )
-    env.close()
+parser = argparse.ArgumentParser(description='Train snakes to play Slitherin')
+parser.add_argument("--dual-snakes", action="store_true", help="train 2 snakes against each other")
 
 def main():
-    parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--env', help='environment ID', default='snake-single-v0')
-    parser.add_argument('--num-timesteps', help='number of maximum time steps', default=2000000)
-    parser.add_argument('--seed', help='random seed value', default=111)
     args = parser.parse_args()
+    num_snakes = 2 if args.dual_snakes else 1
+    Config.set_num_snakes(num_snakes)
 
-    train(args.env, num_timesteps=args.num_timesteps, seed=args.seed)
+    logger.configure()
+
+    ncpu = multiprocessing.cpu_count()
+    if sys.platform == 'darwin': ncpu //= 2
+    config = tf.ConfigProto(allow_soft_placement=True,
+                            intra_op_parallelism_threads=ncpu,
+                            inter_op_parallelism_threads=ncpu)
+    config.gpu_options.allow_growth = True
+    tf.Session(config=config).__enter__()
+
+    env = utils.make_basic_env('snake-multiple-test-v0', ncpu, 0, False)
+    print("env space is ", env.observation_space)
+    num_timesteps = 1e7 if num_snakes == 1 else 1e8
+
+    ppo_multi_agent.learn(policy=CnnPolicy, env=env, nsteps=64, nminibatches=8,
+        lam=0.95, gamma=0.99, noptepochs=4, log_interval=1,
+        ent_coef=.01,
+        lr=lambda f : f * 2.5e-4,
+        cliprange=lambda f : f * 0.1,
+        total_timesteps=num_timesteps)
 
 if __name__ == '__main__':
     main()

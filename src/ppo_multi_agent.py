@@ -157,7 +157,7 @@ class Runner(object):
         mb_states = self.states
         epinfos = []
         for _ in range(self.nsteps):
-            self.env.render()
+            # self.env.render()
             actions, values, self.states, neglogpacs = self.model.multi_step(self.primary_obs, self.opponent_obs,
                                                                              self.states, self.dones)
             mb_obs.append(self.primary_obs.copy())
@@ -221,7 +221,7 @@ def learn(*, policy, env, nsteps, total_timesteps, ent_coef, lr,
     now = datetime.datetime.now()
     now = now.strftime("%B_%d_%Y")
     # tensorboard_writer = logger.TensorBoardOutputFormat('./tensorboard/ppo/')
-    # csv_writer = logger.CSVOutputFormat('./csv/log_{0}.csv'.format(now))
+    csv_writer = logger.CSVOutputFormat('log_{0}.csv'.format(now))
 
     if isinstance(lr, float):
         lr = constfn(lr)
@@ -331,7 +331,6 @@ def learn(*, policy, env, nsteps, total_timesteps, ent_coef, lr,
             logger.logkv("serial_timesteps", update * nsteps)
             logger.logkv("nupdates", update)
             logger.logkv("total_timesteps", update * nbatch)
-            logger.logkv("fps", fps)
             logger.logkv("explained_variance", float(ev))
             logger.logkv('eprewmean ' + str(maxlen), ep_rew_mean)
             logger.logkv('eplenmean', safemean([epinfo['l'] for epinfo in epinfobuf]))
@@ -340,7 +339,7 @@ def learn(*, policy, env, nsteps, total_timesteps, ent_coef, lr,
             for (lossval, lossname) in zip(lossvals, model.loss_names):
                 logger.logkv(lossname, lossval)
             # tensorboard_writer.writekvs(logger.getkvs())
-            # csv_writer.writekvs(logger.getkvs())
+            csv_writer.writekvs(logger.getkvs())
             logger.dumpkvs()
         if save_interval and (update % save_interval == 0 or update == 1) and logger.get_dir():
             checkdir = osp.join(logger.get_dir(), 'checkpoints')

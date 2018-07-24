@@ -36,7 +36,7 @@ def main():
     config.gpu_options.allow_growth = True
     tf.Session(config=config).__enter__()
 
-    env = utils.make_basic_env('snake-multiple-v0', ncpu, 0, False)
+    env = utils.make_basic_env('snake-multiple-test-v0', ncpu, 0, False)
     print("env space is ", env.observation_space)
     num_timesteps = 1e7 if num_snakes == 1 else 1e8
 

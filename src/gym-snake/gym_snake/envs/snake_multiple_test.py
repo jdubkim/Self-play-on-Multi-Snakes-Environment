@@ -6,12 +6,13 @@ import numpy as np
 from gym.envs.classic_control import rendering
 from config import Config
 
+
 # five actions
 # self.dim
 
 class SnakeEnv(gym.Env):
     def __init__(self):
-        self.dim = 10 # 10 X 10 environment
+        self.dim = 10  # 10 X 10 environment
         self.action_space = spaces.Discrete(5)
         self.viewer = None
 
@@ -72,14 +73,14 @@ class SnakeEnv(gym.Env):
         head = snake[0]
         vel = vels[idx]
 
-        if (action == 1 and vel != (-1,0)):
-            vel = (1,0)
-        elif (action == 2 and vel != (0,-1)):
-            vel = (0,1)
-        elif (action == 3 and vel != (1,0)):
-            vel = (-1,0)
-        elif (action == 4 and vel != (0,1)):
-            vel = (0,-1)
+        if (action == 1 and vel != (-1, 0)):
+            vel = (1, 0)
+        elif (action == 2 and vel != (0, -1)):
+            vel = (0, 1)
+        elif (action == 3 and vel != (1, 0)):
+            vel = (-1, 0)
+        elif (action == 4 and vel != (0, 1)):
+            vel = (0, -1)
 
         reward = 0.0
 
@@ -163,12 +164,12 @@ class SnakeEnv(gym.Env):
 
         return self.get_multi_snake_ob(), reward, done, {"ale.lives": 1, "num_snakes": (len(snakes) - len(dead_idxs))}
 
-    def choose_cell(self):    
+    def choose_cell(self):
         return (self.np_random.randint(self.dim), self.np_random.randint(self.dim))
 
     def safe_choose_cell(self):
         snakes = self.state[0]
-        
+
         available = list(range(self.dim * self.dim))
 
         for snake in snakes:
@@ -190,7 +191,7 @@ class SnakeEnv(gym.Env):
         for i in range(Config.NUM_SNAKES):
             snakes.append([self.choose_cell()])
             fruits.append(self.choose_cell())
-        
+
         grow_to_lengths = [3, 3]
         vels = [(0, 0), (0, 0)]
 
@@ -215,8 +216,8 @@ class SnakeEnv(gym.Env):
 
             for i in range(view_dim):
                 for j in range(view_dim):
-                    l,r,t,b = cell_dim * i, cell_dim * (i + 1), cell_dim * (j + 1), cell_dim * j, 
-                    cell = rendering.FilledPolygon([(l,b), (l,t), (r,t), (r,b)])
+                    l, r, t, b = cell_dim * i, cell_dim * (i + 1), cell_dim * (j + 1), cell_dim * j,
+                    cell = rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
                     self.viewer.add_geom(cell)
 
                     cells.append(cell)
@@ -235,7 +236,7 @@ class SnakeEnv(gym.Env):
         if self.state is None:
             return None
 
-        return self.viewer.render(return_rgb_array = mode=='rgb_array')
+        return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 
     def close(self):
         if self.viewer: self.viewer.close()

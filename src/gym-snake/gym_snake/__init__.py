@@ -12,3 +12,7 @@ register(
   id='snake-competitive-v0',
   entry_point='gym_snake.envs:CompetitiveSnakes',
 )
+register(
+  id='snake-multiple-test-v0',
+  entry_point='gym_snake.envs:SnakeEnv',
+)

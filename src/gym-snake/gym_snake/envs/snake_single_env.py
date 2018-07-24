@@ -14,25 +14,20 @@ class SingleSnake(gym.Env):
         'observation.types': ['raw', 'rgb']
     }
 
-    def __init__(self, size=(20, 20), step_limit=1000, dynamic_step_limit=1000, obs_type='rgb',
+    def __init__(self, size=(10, 10), step_limit=1000, dynamic_step_limit=1000,
                  obs_zoom=4, n_food=4, render_zoom=4):
         self.SIZE = size
+        self.view_dim = (size[0] + 2, size[1] + 2)
         self.STEP_LIMIT = step_limit
         self.DYNAMIC_STEP_LIMIT = dynamic_step_limit
         self.hunger = 0
         self.current_step = 0
         self.n_food = n_food
         # Create the world
-        self.world = World(size, n_snakes=1, n_food=self.n_food)
+        self.world = World(size, n_snakes=2, n_food=self.n_food)
 
-        self.obs_type = obs_type
-        if self.obs_type == 'raw':
-            self.observation_space = spaces.Box(low=0, high=255, shape=(self.SIZE[0] * obs_zoom, self.SIZE[1] * obs_zoom))
-        elif self.obs_type == 'rgb':
-            self.observation_space = spaces.Box(low=0, high=255, shape=(self.SIZE[0] * obs_zoom, self.SIZE[1] * obs_zoom, self.COLOR_CHANNELS))
-            self.RGBify = RGBifier(self.SIZE, zoom_factor=obs_zoom, players_colors={})
-        else:
-            raise(Exception('Unrecognized observation mode.'))
+        # self.observation_space = spaces.Box(low=0, high=255, shape=(self.view_dim[0] * obs_zoom, self.view_dim[1] * obs_zoom, self.COLOR_CHANNELS), dtype='uint8')
+        self.RGBify = RGBifier(self.view_dim, zoom_factor=obs_zoom, players_colors={})
 
         # Set action space 4 directions
         self.action_space = spaces.Discrete(len(self.world.DIRECTIONS))
@@ -44,7 +39,7 @@ class SingleSnake(gym.Env):
         self.alive = True
         self.hunger = 0
         # Create world
-        self.world = World(self.SIZE, n_snakes=1, n_food=self.n_food)
+        self.world = World(self.SIZE, n_snakes=2, n_food=self.n_food)
         return self.get_state()
 
     def step(self, action):
@@ -66,18 +61,18 @@ class SingleSnake(gym.Env):
         if dones[0]:
             self.alive = False
 
-        return self.get_state(), rewards[0], dones[0], {}
+        return self.get_state(), rewards, dones, {} # {"ale.lives": 1, "num_snakes": (len(snakes) - len(dead_idxs))}
 
     def seed(self, seed):
         return random.seed(seed)
 
     def get_state(self):
-        state = self.world.get_observation()
-
-        return self.RGBify.get_image(state)
+        state = self.world.get_observation_total()
+        # image = self.RGBify.get_img_array(state)
+        return state
 
     def render(self, mode='rgb_array', close=False):
         if not close:
             if not hasattr(self, 'renderer'):
-                self.renderer = Renderer(self.SIZE, zoom_factor=self.RENDER_ZOOM, players_colors={})
-            return self.renderer.render(self.world.get_observation(), mode=mode, close=close)
+                self.renderer = Renderer(self.view_dim, zoom_factor=self.RENDER_ZOOM, players_colors={})
+            return self.renderer.render(self.world.get_observation_world(), mode=mode, close=close)

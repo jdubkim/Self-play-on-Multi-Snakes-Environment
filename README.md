@@ -1,10 +1,10 @@
-# Algorithms Analyses on Multi Snakes Game Environment
+# Competitive Self-play on Multi Snakes Game Environment
 
-In this project, multi-snakes game environment and some famous Deep RL algorithms were implemented, and analyses on each algorithm were done.  
+In this project, multi-snakes game environment and some famous Deep RL algorithms were implemented, and the agent was trained in this environment using self-play method. 
 This project was proposed by OpenAI as one of the topics from ['Requests for Research 2.0'](https://blog.openai.com/requests-for-research-2/). 
 The proposed research topic was as follows:  
 1) Set up a reasonably large field with multiple snakes. 
-2) Solve the environment using self-play with some RL algorithms, and obsever what happens.  
+2) Solve the environment using self-play with some RL algorithms, and observe what happens.  
    e.g. train current policy against a distribution of past policies. 
 3) Inspect the learned behavior. 
 

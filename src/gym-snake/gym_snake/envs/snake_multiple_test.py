@@ -58,9 +58,42 @@ class SnakeEnv(gym.Env):
 
         return ob  # 12 * 12 * 3 array
 
+    def get_ob_world(self):
+        dim = self.dim
+
+        ob = np.full((dim + 2, dim + 2, 3), 0, dtype='uint8')
+
+        snakes = self.state[0]
+        fruits = self.state[1]
+
+        for fruit in fruits:
+            ob[fruit[0] + 1][fruit[1] + 1] = [255, 0, 0]
+
+        for i in range(len(snakes)):
+            color = self.get_color(i)
+            self.draw_snake(ob, snakes[i], color[0], color[1])
+
+        for i in range(dim + 2):
+            ob[i][0] = [255, 255, 255]
+            ob[i][dim + 1] = [255, 255, 255]
+            ob[0][i] = [255, 255, 255]
+            ob[dim + 1][i] = [255, 255, 255]
+
+        return ob  # 12 * 12 * 3 array
+
+    def get_color(self, idx):
+
+        p_colors = {0: [[0, 204, 0], [191, 242, 191]],  # Green
+                    1: [[0, 51, 204], [128, 154, 230]], # Blue
+                    2: [[204, 0, 119], [230, 128, 188]], # Magenta
+                    3: [[119, 0, 204], [188, 128, 230]], # Violet
+                    }
+
+        return p_colors[idx]
+
     def get_multi_snake_ob(self):
-        t = np.concatenate((self.get_ob_for_snake(0), self.get_ob_for_snake(1)), axis=2)
-        return t  # concatenate two arrays (12 * 12 * 3) convert it to (12 * 12 * 6)
+        t = np.concatenate((self.get_ob_for_snake(0), self.get_ob_for_snake(1), self.get_ob_for_snake(2)), axis=2)
+        return t  # concatenate two arrays (12 * 12 * 3) convert it to (12 * 12 * 9)
 
     def update_snake(self, idx, action):
         [snakes, fruits, vels, grow_to_lengths, t] = self.state
@@ -192,8 +225,8 @@ class SnakeEnv(gym.Env):
             snakes.append([self.choose_cell()])
             fruits.append(self.choose_cell())
 
-        grow_to_lengths = [3, 3]
-        vels = [(0, 0), (0, 0)]
+        grow_to_lengths = [3, 3, 3]
+        vels = [(0, 0), (0, 0), (0, 0)]
 
         self.state = [snakes, fruits, vels, grow_to_lengths, 0]
         self.steps_beyond_done = None
@@ -201,7 +234,7 @@ class SnakeEnv(gym.Env):
 
     def render(self, mode='human'):
         dim = self.dim
-        screen_dim = 600
+        screen_dim = 300
 
         head_cell = self.state[0]
         fruit_cell = self.state[1]
@@ -224,7 +257,7 @@ class SnakeEnv(gym.Env):
 
             self.cells = cells
 
-        ob = self.get_ob_for_snake(0)
+        ob = self.get_ob_world()
         print("obs is ", ob.shape)
 
         for i in range(view_dim):

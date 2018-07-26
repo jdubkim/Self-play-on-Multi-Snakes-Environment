@@ -53,5 +53,8 @@ def get_shape(ob_space):
 
     return shape
 
-def get_opponent_file(x):
-    return 'opponent_' + str(x) + '.pkl'
+def get_opponent1_file(x):
+    return 'opponent1_' + str(x) + '.pkl'
+
+def get_opponent2_file(x):
+    return 'opponent2_' + str(x) + '.pkl'

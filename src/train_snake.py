@@ -40,10 +40,10 @@ def main():
 
     env = utils.make_basic_env('snake-multiple-test-v0', ncpu, 0, False)
     print("env space is ", env.observation_space)
-    num_timesteps = 5e7 if num_snakes == 1 else 8e7
+    num_timesteps = 1e7 if num_snakes == 1 else 8e7
 
     ppo_multi_agent.learn(policy=CnnPolicy, env=env, nsteps=64, nminibatches=8,
-        lam=0.95, gamma=0.99, noptepochs=4, log_interval=1, save_interval=1000,
+        lam=0.95, gamma=0.99, noptepochs=4, log_interval=1, save_interval=50,
         ent_coef=.01,
         lr=lambda f : f * 2.5e-4,
         cliprange=lambda f : f * 0.1,

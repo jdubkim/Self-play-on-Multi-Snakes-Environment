@@ -107,7 +107,7 @@ class Model(object):
 
         def save(save_file):
             ps = sess.run(params)
-            joblib.dump(ps, Config.MODEL_DIR + save_file)
+            joblib.dump(ps, Config.MODEL_DIR + Config.EXPR_DIR + save_file)
 
         update_placeholders = []
         update_ops = []
@@ -119,7 +119,7 @@ class Model(object):
             update_ops.append(update_op)
 
         def load(load_file):
-            loaded_params = joblib.load(Config.MODEL_DIR + load_file)
+            loaded_params = joblib.load(Config.MODEL_DIR + Config.EXPR_DIR + load_file)
 
             feed_dict = {}
 
@@ -146,6 +146,7 @@ class Runner(object):
         input_shape = utils.get_shape(env.observation_space)
         self.primary_obs = np.zeros((nenv,) + input_shape, dtype=model.train_model.X.dtype.name)
         self.opponent_obs1 = np.zeros((nenv,) + input_shape, dtype=model.train_model.X.dtype.name)
+        self.opponent_obs2 = None
         if Config.NUM_SNAKES == 3:
             self.opponent_obs2 = np.zeros((nenv,) + input_shape, dtype=model.train_model.X.dtype.name)
         multi_agent_obs = env.reset()

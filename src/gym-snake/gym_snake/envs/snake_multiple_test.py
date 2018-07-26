@@ -12,7 +12,7 @@ from config import Config
 
 class SnakeEnv(gym.Env):
     def __init__(self):
-        self.dim = 10  # 10 X 10 environment
+        self.dim = 19  # 10 X 10 environment
         self.action_space = spaces.Discrete(5)
         self.viewer = None
 
@@ -258,7 +258,6 @@ class SnakeEnv(gym.Env):
             self.cells = cells
 
         ob = self.get_ob_world()
-        print("obs is ", ob.shape)
 
         for i in range(view_dim):
             for j in range(view_dim):

@@ -47,7 +47,7 @@ def main():
 
     tf.Session().__enter__()
 
-    env = gym.make('snake-multiple-test-v0')
+    env = gym.make('snake-adversarial-v0')
     env = WarpFrame(env)
 
     act0 = load_act_model(agent_file, 'model', env)

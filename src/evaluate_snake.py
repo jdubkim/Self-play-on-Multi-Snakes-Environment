@@ -9,14 +9,14 @@ import sys
 import argparse
 import gym_snake
 
-import envs
 from config import Config
 import utils
 from utils import WarpFrame
 
 parser = argparse.ArgumentParser(description='Visualize a trained snakes in the Slitherin environment')
 parser.add_argument("--n-snakes", default=1, help="number of snakes in the environment")
-parser.add_argument("--file", type=str, default="example_model.pkl", help="file to load")
+parser.add_argument("--file1", type=str, default="example_model.pkl", help="file to load")
+parser.add_argument("--file2", type=str, default="example_model.pkl", help="file to load")
 
 def load_act_model(load_file, model_scope, env, nenvs=1, num_actions=5):
     print('Loading from...', load_file)
@@ -43,25 +43,26 @@ def main():
     args = parser.parse_args()
     num_snakes = int(args.n_snakes)
     Config.set_num_snakes(num_snakes)
-    agent_file = args.file
+    print("Num snakes is ", num_snakes)
+    agent_file1 = args.file1
+    agent_file2 = args.file2
 
     tf.Session().__enter__()
 
-    env = gym.make('snake-adversarial-v0')
+    env = gym.make('snake-new-multiple-v0')
     env = WarpFrame(env)
 
-    act0 = load_act_model(agent_file, 'model', env)
-    act1 = load_act_model(agent_file, 'model_2', env)
+    act0 = load_act_model(agent_file1, 'model', env)
+    act1 = load_act_model(agent_file2, 'model_2', env)
     act2 = None
     if num_snakes == 3:
-        act2 = load_act_model(agent_file, 'model_3', env)
+        act2 = load_act_model(agent_file2, 'model_3', env)
 
     while True:
+        time.sleep(0.5)
         obs, done = env.reset(), False
         episode_rew = 0
         t_step = 0
-
-        env.render()
 
         has_transitioned = False
         last_done = False
@@ -92,18 +93,19 @@ def main():
                 action.append(action2[0])
 
             obs, rew, done, info = env.step(action)
+            # print("reward: {0}, done: {1}, info: {2}".format(rew, done, info))
             last_done = done
             episode_rew += rew
 
             sleep_time = 0
 
             if info["num_snakes"] <= 1:
-                sleep_time = .1
+                sleep_time = .05
 
                 if not has_transitioned:
                     has_transitioned = True
             else:
-                sleep_time = .1
+                sleep_time = .05
 
             env.render()
 

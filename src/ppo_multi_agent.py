@@ -42,7 +42,11 @@ class MultiModel(object):
                 self.full_actions = list(zip(actions, opponent_actions1))
             else:
                 self.full_actions = list(zip(actions, opponent_actions1, opponent_actions2))
-
+            print("---- TEST ----")
+            print("action is : ", actions)
+            print("opponent actions1 is : ", opponent_actions1)
+            print("opponent actions2 is : ", opponent_actions2)
+            print("full actions is : ", self.full_actions)
             return actions, values, ret_states, neglogpacs
 
         self.multi_step = multi_step
@@ -168,6 +172,7 @@ class Runner(object):
         mb_states = self.states
         epinfos = []
         for _ in range(self.nsteps):
+            time.sleep(0.1)
             actions, values, self.states, neglogpacs = \
                 self.model.multi_step(self.primary_obs, self.opponent_obs1, self.opponent_obs2, self.states, self.dones)
             mb_obs.append(self.primary_obs.copy())

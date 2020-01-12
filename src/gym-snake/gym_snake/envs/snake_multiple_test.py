@@ -6,7 +6,6 @@ import numpy as np
 from gym.envs.classic_control import rendering
 from config import Config
 
-
 # five actions
 # self.dim
 
@@ -240,22 +239,20 @@ class SnakeEnv(gym.Env):
         fruit_cell = self.state[1]
 
         view_dim = dim + 2
-        cell_dim = screen_dim / view_dim
+        grid_res = screen_dim / view_dim
 
         if self.viewer is None:
             self.viewer = rendering.Viewer(screen_dim, screen_dim)
 
-            cells = []
+            self.grids = []
 
             for i in range(view_dim):
                 for j in range(view_dim):
-                    l, r, t, b = cell_dim * i, cell_dim * (i + 1), cell_dim * (j + 1), cell_dim * j,
-                    cell = rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
-                    self.viewer.add_geom(cell)
+                    l, r, t, b = grid_res * i, grid_res * (i + 1), grid_res * (j + 1), grid_res * j,
+                    grid = rendering.FilledPolygon([(l, b), (l, t), (r, t), (r, b)])
+                    self.viewer.add_geom(grid)
 
-                    cells.append(cell)
-
-            self.cells = cells
+                    self.grids.append(grid)
 
         ob = self.get_ob_world()
 

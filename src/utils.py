@@ -35,6 +35,7 @@ def make_basic_env(env_id, num_env, seed, start_index=0):
     def make_env(rank):
         def _thunk():
             env = gym.make(env_id)
+            env.__init__(n_snakes=Config.NUM_SNAKES, n_fruits=Config.NUM_SNAKES)
             env.seed(seed + rank)
             env = Monitor(env, None, allow_early_resets=True)
 
@@ -53,7 +54,10 @@ def get_shape(ob_space):
 
     return shape
 
-def get_opponent1_file(x):
+def get_opponent_file(i, opponent_idx):
+    return 'opponent{0}_{1}.pkl'.format(i, opponent_idx)
+
+def get_opponent1_file(x): # TODO: get_opponent_file(i, opponents_idx[i])
     return 'opponent1_' + str(x) + '.pkl'
 
 def get_opponent2_file(x):

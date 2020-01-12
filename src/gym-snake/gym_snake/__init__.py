@@ -9,6 +9,10 @@ register(
   entry_point='gym_snake.envs:MultipleSnakes',
 )
 register(
+  id='snake-new-multiple-v0',
+  entry_point='gym_snake.envs:NewMultipleSnakes',
+)
+register(
   id='snake-competitive-v0',
   entry_point='gym_snake.envs:CompetitiveSnakes',
 )

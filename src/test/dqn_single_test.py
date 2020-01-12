@@ -52,7 +52,7 @@ def main():
                           lr=1e-4,
                           max_timesteps=10000000,
                           buffer_size=50000,
-                          train_freq=10000,
+                          train_freq=4,
                           exploration_fraction=0.1,
                           exploration_final_eps=0.02,
                           gamma=0.99,

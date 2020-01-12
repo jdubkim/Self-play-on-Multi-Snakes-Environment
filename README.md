@@ -28,7 +28,7 @@ pip3 install -r requirements.txt
 
 ### Installing
 
-First, you need to install multi-snakes gym environment. 
+You need to install multi-snakes gym environment. 
 
 ```
 cd gym-snake
@@ -37,32 +37,12 @@ pip3 install -e .
 
 ## Running the tests
 
-First, you can run the test on several environments. Test codes are in 'test' folder. 
+You can run the test on several environments. Test codes are in 'test' folder. 
 ```
 source activate tf # don't forget to activate virtual env
 cd test
 python3 multiple_test.py
 ```
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
 
 ## Built With
 
@@ -77,4 +57,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 * Sounam An - My mentor at DeepLearning Camp Jeju 2018
 * Sourabh Bajaj - Mentor at DeepLearning Camp Jeju 2018
+* Eric Jang - Mentor at DeepLearning Camp Jeju 2018
 

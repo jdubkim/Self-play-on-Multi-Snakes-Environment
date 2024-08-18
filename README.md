@@ -12,8 +12,10 @@ Adding to this, inspired by 'slither.io', I added a new action that can cut othe
 
 Multi-snakes OpenAI Gym environment was implemented based on [this code](https://github.com/nicomon24/Sneks).
 This link was only used as a reference since the code in the link was not fully implemented. Deep RL algorithms implementations were written in tensorflow.
+
+The slides are shared in this [link](https://docs.google.com/presentation/d/1lh0mDweE3k-gyRqgW-CUVC1bvujCZSVNyb7LDetOsW8/edit?usp=sharing).
   
-This project is a result of [DeepLearning Camp Jeju 2018](http://jeju.dlcamp.org/2018/).   
+This project is a result of [DeepLearning Camp Jeju 2018](http://jeju.dlcamp.org/2018/).
 
 ## Getting Started
 

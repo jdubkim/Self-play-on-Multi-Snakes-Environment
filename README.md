@@ -1,5 +1,7 @@
 # Competitive Self-play on Multi Snakes Game Environment
 
+(This project was done back in 2018)
+
 In this project, multi-snakes game environment and some famous Deep RL algorithms were implemented, and the agent was trained in this environment using self-play method. 
 This project was proposed by OpenAI as one of the topics from ['Requests for Research 2.0'](https://blog.openai.com/requests-for-research-2/). 
 The proposed research topic was as follows:  
